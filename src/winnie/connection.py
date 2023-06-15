@@ -57,7 +57,7 @@ class Connection:
 		message = [0x13, self.counter]
 		message.extend(key)
 		response, msgCounter = self.sendMessage(message)
-		if response[1] == 0xFF and response[1] == 0x00:
+		if response[0] == 0xFF and response[1] == 0x00:
 			result = rm.ResourceMask(False, False, False)
 			result.setFromInteger(response[3])
 			return result
