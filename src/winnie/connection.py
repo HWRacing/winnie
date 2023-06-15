@@ -76,3 +76,13 @@ class Connection:
 			return True
 		else:
 			raise RuntimeError("SET_MTA failed")
+
+	def upload(self, blockSize: int) -> List[int]:
+		if blockSize > 5:
+			raise ValueError("Block size must be 5 bytes or less")
+		message = [0x04, self.counter, blockSize, 0, 0, 0, 0, 0]
+		response, msgCounter = self.sendMessage(message)
+		if response[0] == 0xFF and response[1] == 0x00:
+			return response[3:3+blockSize]
+		else:
+			raise ValueError("UPLOAD failed")
