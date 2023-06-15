@@ -34,7 +34,7 @@ class Connection:
 
 	def connect(self, stationID: int) -> bool:
 		message = [0x01, self.counter, 0, 0, 0, 0, 0, 0]
-		splitID = listops.splitNumberByBytes(stationID)
+		splitID = listops.splitNumberByBytes(stationID, bigEndian=False)
 		splitID.reverse()
 		message[2:3] = splitID
 		response, msgCounter = self.sendMessage(message)
