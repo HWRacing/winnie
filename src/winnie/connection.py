@@ -1,5 +1,5 @@
 from canlib import canlib, Frame
-from typing import List
+from typing import List, Tuple
 from winnie import listops
 from winnie import resourceMask as rm
  
@@ -52,3 +52,15 @@ class Connection:
 		if response[1] != 0x00:
 			raise RuntimeError(f"GET_SEED message responded with error code {response[1]:#x}")
 		return response[4:]
+	
+	def unlock(self, key: Tuple[int, int, int, int, int, int]) -> rm.ResourceMask:
+		message = [0x13, self.counter]
+		message.extend(key)
+		response, msgCounter = self.sendMessage(message)
+		if response[1] == 0xFF and response[1] == 0x00:
+			result = rm.ResourceMask(False, False, False)
+			result.setFromInteger(response[3])
+			return result
+		else:
+			raise RuntimeError("UNLOCK failed")
+
