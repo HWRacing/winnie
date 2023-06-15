@@ -43,7 +43,7 @@ class Connection:
 			return True
 		else:
 			raise RuntimeError("Connection failed")
-	
+
 	def getSeed(self, resourceMask: rm.ResourceMask) -> List[int]:
 		message = [0x12, self.counter, rm.getInteger, 0, 0, 0, 0, 0]
 		response, msgCounter = self.sendMessage(message)
@@ -52,7 +52,7 @@ class Connection:
 		if response[1] != 0x00:
 			raise RuntimeError(f"GET_SEED message responded with error code {response[1]:#x}")
 		return response[4:]
-	
+
 	def unlock(self, key: Tuple[int, int, int, int, int, int]) -> rm.ResourceMask:
 		message = [0x13, self.counter]
 		message.extend(key)
@@ -71,7 +71,7 @@ class Connection:
 		message = [0x02, self.counter, extension]
 		message.extend(listops.splitNumberByBytes(address, bigEndian=False))
 		# Send message and handle response
-		response, msgCoutner = self.sendMessage(message)
+		response, msgCounter = self.sendMessage(message)
 		if response[0] == 0xFF and response[1] == 0x00:
 			return True
 		else:
