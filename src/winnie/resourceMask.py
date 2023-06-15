@@ -13,3 +13,8 @@ class ResourceMask:
 		if self.flash == True:
 			output += 64
 		return output
+
+	def setFromInteger(self, n: int) -> None:
+		self.write = (n & 1) != 0
+		self.read = (n & 2) != 0
+		self.flash = (n & 64) != 0
