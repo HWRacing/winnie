@@ -64,3 +64,15 @@ class Connection:
 		else:
 			raise RuntimeError("UNLOCK failed")
 
+	def setMemoryTransferAddress(self, mtaNumber: int, extension: int, address: int) -> bool:
+		if mtaNumber != 0 and mtaNumber != 1:
+			raise ValueError("Memory transfer address number must be 0 or 1")
+		# Construct the message
+		message = [0x02, self.counter, extension]
+		message.extend(listops.splitNumberByBytes(address, bigEndian=False))
+		# Send message and handle response
+		response, msgCoutner = self.sendMessage(message)
+		if response[0] == 0xFF and response[1] == 0x00:
+			return True
+		else:
+			raise RuntimeError("SET_MTA failed")
