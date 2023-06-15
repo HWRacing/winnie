@@ -24,6 +24,12 @@ class Connection:
 		result = self.channel.read(timeout=500)
 		currentCounter = self.counter
 		self.counter += 0x01
+
+		# Verify that the command counter of the response matches the one of the command
+		if result.data[0] == 0xFF or result.data[0] == 0xFE:
+			if result.data[2] != currentCounter:
+				raise RuntimeError("Message counter in response does not match")
+
 		return result.data, currentCounter
 
 	def connect(self, stationID: int) -> bool:
@@ -32,7 +38,7 @@ class Connection:
 		splitID.reverse()
 		message[2:3] = splitID
 		response, msgCounter = self.sendMessage(message)
-		if response[0] == 0xFF and response[1] == 0x00 and response[2] == msgCounter:
+		if response[0] == 0xFF and response[1] == 0x00:
 			self.connected = True
 			return True
 		else:
