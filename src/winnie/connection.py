@@ -1,5 +1,6 @@
 from canlib import canlib, Frame
 from typing import List
+from winnie import listops
  
 class Connection:
 	def __init__(self, channel: canlib.Channel, id: int):
@@ -23,3 +24,15 @@ class Connection:
 		currentCounter = self.counter
 		self.counter += 0x01
 		return result.data, currentCounter
+
+	def connect(self, stationID: int):
+		message = [0x01, self.counter, 0, 0, 0, 0, 0, 0]
+		splitID = listops.splitNumberByBytes(stationID)
+		splitID.reverse()
+		message[2:3] = splitID
+		response, msgCounter = self.sendMessage()
+		if response[0] == 0xFF and response[1] == 0x00 and response[2] == msgCounter:
+			self.connected = True
+			return True
+		else:
+			raise RuntimeError("Connection failed")
