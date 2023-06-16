@@ -34,6 +34,12 @@ class Connection:
 
 		return response, currentCounter
 
+	def checkForAcknowledgement(self, message: List[int]) -> bool:
+		if message[0] == 0xFF and message[1] == 0x00:
+			return True
+		else:
+			return False
+
 	def connect(self, stationID: int) -> bool:
 		splitID = listops.splitNumberByBytes(stationID, bigEndian=False)
 		message = [0x01, self.counter, splitID[0], splitID[1], 0, 0, 0, 0]
