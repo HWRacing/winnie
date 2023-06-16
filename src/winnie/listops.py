@@ -16,3 +16,9 @@ def padToLength(l: List, targetLength: int, padding=None) -> List:
 		raise ValueError(f"List too long ({currentLength}) for target length ({targetLength})")
 	l.extend([padding] * targetLength - currentLength)
 	return l
+
+def listToInt(l: List[int]) -> int:
+	result = 0
+	for i in l:
+		result = (result << 8) | i
+	return result
