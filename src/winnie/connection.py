@@ -11,7 +11,7 @@ class Connection:
 		self.id = id
 
 	def sendMessage(self, message: List[int]) -> List[int]:
-		if self.connected == False:
+		if self.connected == False and message[0] != 0x01:
 			raise RuntimeError("Connection must be established before sending a message")
 		# Ensure that the message is 8 bytes long
 		if len(message) != 8:
