@@ -22,15 +22,17 @@ class Connection:
 		self.channel.writeSync(timeout=500)
 		# Get the result and increment the counter
 		result = self.channel.read(timeout=500)
+		response = [x for x in result.data]
+
 		currentCounter = self.counter
 		self.counter += 0x01
 
 		# Verify that the command counter of the response matches the one of the command
-		if result.data[0] == 0xFF or result.data[0] == 0xFE:
-			if result.data[2] != currentCounter:
+		if response[0] == 0xFF or response[0] == 0xFE:
+			if response[2] != currentCounter:
 				raise RuntimeError("Message counter in response does not match")
 
-		return result.data, currentCounter
+		return response, currentCounter
 
 	def connect(self, stationID: int) -> bool:
 		splitID = listops.splitNumberByBytes(stationID, bigEndian=False)
