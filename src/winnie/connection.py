@@ -97,3 +97,13 @@ class Connection:
 			return response[3:3+blockSize]
 		else:
 			raise ValueError("UPLOAD failed")
+	
+	def getCCPVersion(self, mainVersion: int, release: int) -> Tuple[int, int]:
+		message = [0x1B, self.counter, mainVersion, release, 0, 0, 0, 0]
+		response, msgCounter = self.sendMessage(message)
+		if response[0] == 0xFF and response[1] == 0x00:
+			returnedMainVersion = response[3]
+			returnedRelease = response[4]
+			return returnedMainVersion, returnedRelease
+		else:
+			raise RuntimeError("GET_CCP_VERSION failed")
