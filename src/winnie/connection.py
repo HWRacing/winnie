@@ -79,7 +79,7 @@ class Connection:
 		if mtaNumber != 0 and mtaNumber != 1:
 			raise ValueError("Memory transfer address number must be 0 or 1")
 		# Construct the message
-		message = [0x02, self.counter, extension]
+		message = [0x02, self.counter, mtaNumber, extension]
 		message.extend(listops.splitNumberByBytes(address, bigEndian=False))
 		# Send message and handle response
 		response, msgCounter = self.sendMessage(message)
