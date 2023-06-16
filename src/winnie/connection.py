@@ -36,7 +36,6 @@ class Connection:
 
 	def connect(self, stationID: int) -> bool:
 		splitID = listops.splitNumberByBytes(stationID, bigEndian=False)
-		splitID.reverse()
 		message = [0x01, self.counter, splitID[0], splitID[1], 0, 0, 0, 0]
 		response, msgCounter = self.sendMessage(message)
 		if response[0] == 0xFF and response[1] == 0x00:
