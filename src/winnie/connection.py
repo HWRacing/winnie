@@ -80,7 +80,7 @@ class Connection:
 			raise ValueError("Memory transfer address number must be 0 or 1")
 		# Construct the message
 		message = [0x02, self.counter, mtaNumber, extension]
-		message.extend(listops.splitNumberByBytes(address, bigEndian=False))
+		message.extend(listops.splitNumberByBytes(address, bigEndian=True))
 		# Send message and handle response
 		response, msgCounter = self.sendMessage(message)
 		if response[0] == 0xFF and response[1] == 0x00:
