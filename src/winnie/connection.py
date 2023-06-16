@@ -2,13 +2,15 @@ from canlib import canlib, Frame
 from typing import List, Tuple
 from winnie import listops
 from winnie import resourceMask as rm
+from winnie import formatting
  
 class Connection:
-	def __init__(self, channel: canlib.Channel, id: int):
+	def __init__(self, channel: canlib.Channel, id: int, debug: bool = False):
 		self.connected = False
 		self.channel = channel
 		self.counter = 0
 		self.id = id
+		self.debug = debug
 
 	def sendMessage(self, message: List[int]) -> List[int]:
 		if self.connected == False and message[0] != 0x01:
@@ -16,6 +18,8 @@ class Connection:
 		# Ensure that the message is 8 bytes long
 		if len(message) != 8:
 			raise ValueError("Messages must be 8 bytes long")
+		if self.debug == True:
+			formatting.printHexList("Message: ", message)
 		# Construct and send the frame
 		frame = Frame(id_=self.id, data=message)
 		self.channel.write(frame)
@@ -23,6 +27,8 @@ class Connection:
 		# Get the result and increment the counter
 		result = self.channel.read(timeout=500)
 		response = [x for x in result.data]
+		if self.debug == True:
+			formatting.printHexList("Response: ", response)
 
 		currentCounter = self.counter
 		self.counter += 0x01
@@ -41,6 +47,9 @@ class Connection:
 			return False
 
 	def connect(self, stationID: int) -> bool:
+		if self.debug == True:
+			print("CONNECT")
+
 		splitID = listops.splitNumberByBytes(stationID, bigEndian=False)
 		message = [0x01, self.counter, splitID[0], splitID[1], 0, 0, 0, 0]
 		response, msgCounter = self.sendMessage(message)
@@ -51,6 +60,9 @@ class Connection:
 			raise RuntimeError("Connection failed")
 	
 	def disconnect(self, stationID, temporary=False) -> bool:
+		if self.debug == True:
+			print("DISCONNECT")
+
 		splitID = listops.splitNumberByBytes(stationID, bigEndian=False)
 		temporaryByte = 0x01
 		if temporary == True:
@@ -64,6 +76,9 @@ class Connection:
 			raise RuntimeError("Disconnect failed")
 	
 	def exchangeID(self) -> Tuple[rm.ResourceMask, rm.ResourceMask]:
+		if self.debug == True:
+			print("EXCHANGE_ID")
+
 		message = [0x17, self.counter, 0, 0, 0, 0, 0, 0]
 		response, msgCounter = self.sendMessage(message)
 		# Initialise two resource mask objects
@@ -75,6 +90,9 @@ class Connection:
 		return availabilityMask, protectionMask
 
 	def getSeed(self, resourceMask: rm.ResourceMask) -> List[int]:
+		if self.debug == True:
+			print("GET_SEED")
+
 		message = [0x12, self.counter, resourceMask.getInteger(), 0, 0, 0, 0, 0]
 		response, msgCounter = self.sendMessage(message)
 		if response[0] != 0xFF:
@@ -84,6 +102,9 @@ class Connection:
 		return response[4:]
 
 	def unlock(self, key: Tuple[int, int, int, int, int, int]) -> rm.ResourceMask:
+		if self.debug == True:
+			print("UNLOCK")
+
 		message = [0x13, self.counter]
 		message.extend(key)
 		response, msgCounter = self.sendMessage(message)
@@ -95,6 +116,9 @@ class Connection:
 			raise RuntimeError("UNLOCK failed")
 
 	def setMemoryTransferAddress(self, mtaNumber: int, extension: int, address: int) -> bool:
+		if self.debug == True:
+			print("SET_MTA")
+
 		if mtaNumber != 0 and mtaNumber != 1:
 			raise ValueError("Memory transfer address number must be 0 or 1")
 		# Construct the message
@@ -108,6 +132,9 @@ class Connection:
 			raise RuntimeError("SET_MTA failed")
 
 	def upload(self, blockSize: int) -> List[int]:
+		if self.debug == True:
+			print("UPLOAD")
+
 		if blockSize > 5:
 			raise ValueError("Block size must be 5 bytes or less")
 		message = [0x04, self.counter, blockSize, 0, 0, 0, 0, 0]
@@ -118,6 +145,9 @@ class Connection:
 			raise ValueError("UPLOAD failed")
 	
 	def getCCPVersion(self, mainVersion: int, release: int) -> Tuple[int, int]:
+		if self.debug == True:
+			print("GET_CCP_VERSION")
+
 		message = [0x1B, self.counter, mainVersion, release, 0, 0, 0, 0]
 		response, msgCounter = self.sendMessage(message)
 		if self.checkForAcknowledgement(response) == True:
@@ -128,6 +158,9 @@ class Connection:
 			raise RuntimeError("GET_CCP_VERSION failed")
 	
 	def download(self, data: List[int]) -> Tuple[int, int]:
+		if self.debug == True:
+			print("DOWNLOAD")
+
 		dataLength = len(data)
 		if dataLength > 5:
 			raise ValueError("Data must be 5 bytes or less")
