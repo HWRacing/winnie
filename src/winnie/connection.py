@@ -124,6 +124,10 @@ class Connection:
 		# Construct the message
 		message = [0x02, self.counter, mtaNumber, extension]
 		message.extend(listops.splitNumberByBytes(address, bigEndian=True))
+		# Add leading 0s to address if necessary (this is why we need to switch to byte arrays)
+		if len(message) < 8:
+			zerosToAdd = 8 - len(message)
+			message = message[:4] + [0] * zerosToAdd + message[4:]
 		# Send message and handle response
 		response, msgCounter = self.sendMessage(message)
 		if self.checkForAcknowledgement(response) == True:
