@@ -43,6 +43,17 @@ class Connection:
 			return True
 		else:
 			raise RuntimeError("Connection failed")
+	
+	def exchangeID(self) -> Tuple[rm.ResourceMask, rm.ResourceMask]:
+		message = [0x17, self.counter, 0, 0, 0, 0, 0, 0]
+		response, msgCounter = self.sendMessage(message)
+		# Initialise two resource mask objects
+		availabilityMask = rm.ResourceMask(False, False, False)
+		protectionMask = rm.ResourceMask(False, False, False)
+		# Put in the data from the response
+		availabilityMask.setFromInteger(response[5])
+		protectionMask.setFromInteger(response[6])
+		return availabilityMask, protectionMask
 
 	def getSeed(self, resourceMask: rm.ResourceMask) -> List[int]:
 		message = [0x12, self.counter, rm.getInteger, 0, 0, 0, 0, 0]
