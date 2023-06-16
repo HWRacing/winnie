@@ -44,6 +44,19 @@ class Connection:
 		else:
 			raise RuntimeError("Connection failed")
 	
+	def disconnect(self, stationID, temporary=False) -> bool:
+		splitID = listops.splitNumberByBytes(stationID, bigEndian=False)
+		temporaryByte = 0x01
+		if temporary == True:
+			temporaryByte = 0x00
+		message = [0x07, self.counter, temporaryByte, 0, splitID[0], splitID[1], 0, 0]
+		response, msgCounter = self.sendMessage(message)
+		if response[0] == 0xFF and response[1] == 0x00:
+			self.connected = False
+			return True
+		else:
+			raise RuntimeError("Disconnect failed")
+	
 	def exchangeID(self) -> Tuple[rm.ResourceMask, rm.ResourceMask]:
 		message = [0x17, self.counter, 0, 0, 0, 0, 0, 0]
 		response, msgCounter = self.sendMessage(message)
@@ -107,3 +120,5 @@ class Connection:
 			return returnedMainVersion, returnedRelease
 		else:
 			raise RuntimeError("GET_CCP_VERSION failed")
+	
+
