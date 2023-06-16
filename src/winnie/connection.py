@@ -56,7 +56,7 @@ class Connection:
 		return availabilityMask, protectionMask
 
 	def getSeed(self, resourceMask: rm.ResourceMask) -> List[int]:
-		message = [0x12, self.counter, rm.getInteger, 0, 0, 0, 0, 0]
+		message = [0x12, self.counter, resourceMask.getInteger(), 0, 0, 0, 0, 0]
 		response, msgCounter = self.sendMessage(message)
 		if response[0] != 0xFF:
 			raise RuntimeError(f"Expected packet id 0xFF, received packed ID {response[0]:#x}")
