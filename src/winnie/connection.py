@@ -44,7 +44,7 @@ class Connection:
 		splitID = listops.splitNumberByBytes(stationID, bigEndian=False)
 		message = [0x01, self.counter, splitID[0], splitID[1], 0, 0, 0, 0]
 		response, msgCounter = self.sendMessage(message)
-		if response[0] == 0xFF and response[1] == 0x00:
+		if self.checkForAcknowledgement(response) == True:
 			self.connected = True
 			return True
 		else:
@@ -57,7 +57,7 @@ class Connection:
 			temporaryByte = 0x00
 		message = [0x07, self.counter, temporaryByte, 0, splitID[0], splitID[1], 0, 0]
 		response, msgCounter = self.sendMessage(message)
-		if response[0] == 0xFF and response[1] == 0x00:
+		if self.checkForAcknowledgement(response) == True:
 			self.connected = False
 			return True
 		else:
@@ -87,7 +87,7 @@ class Connection:
 		message = [0x13, self.counter]
 		message.extend(key)
 		response, msgCounter = self.sendMessage(message)
-		if response[0] == 0xFF and response[1] == 0x00:
+		if self.checkForAcknowledgement(response) == True:
 			result = rm.ResourceMask(False, False, False)
 			result.setFromInteger(response[3])
 			return result
@@ -102,7 +102,7 @@ class Connection:
 		message.extend(listops.splitNumberByBytes(address, bigEndian=True))
 		# Send message and handle response
 		response, msgCounter = self.sendMessage(message)
-		if response[0] == 0xFF and response[1] == 0x00:
+		if self.checkForAcknowledgement(response) == True:
 			return True
 		else:
 			raise RuntimeError("SET_MTA failed")
@@ -112,7 +112,7 @@ class Connection:
 			raise ValueError("Block size must be 5 bytes or less")
 		message = [0x04, self.counter, blockSize, 0, 0, 0, 0, 0]
 		response, msgCounter = self.sendMessage(message)
-		if response[0] == 0xFF and response[1] == 0x00:
+		if self.checkForAcknowledgement(response) == True:
 			return response[3:3+blockSize]
 		else:
 			raise ValueError("UPLOAD failed")
@@ -120,7 +120,7 @@ class Connection:
 	def getCCPVersion(self, mainVersion: int, release: int) -> Tuple[int, int]:
 		message = [0x1B, self.counter, mainVersion, release, 0, 0, 0, 0]
 		response, msgCounter = self.sendMessage(message)
-		if response[0] == 0xFF and response[1] == 0x00:
+		if self.checkForAcknowledgement(response) == True:
 			returnedMainVersion = response[3]
 			returnedRelease = response[4]
 			return returnedMainVersion, returnedRelease
@@ -135,7 +135,7 @@ class Connection:
 		message.extend(data)
 		message = listops.padToLength(message, 8, padding=0)
 		response, msgCounter = self.sendMessage(message)
-		if response[0] != 0xFF or response [1] != 0x00:
+		if self.checkForAcknowledgement(response) == True:
 			raise RuntimeError("Download failed")
 		newExtension = response[3]
 		newAddress = listops.listToInt(response[4:8])
