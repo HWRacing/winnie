@@ -121,4 +121,16 @@ class Connection:
 		else:
 			raise RuntimeError("GET_CCP_VERSION failed")
 	
-
+	def download(self, data: List[int]) -> Tuple[int, int]:
+		dataLength = len(data)
+		if dataLength > 5:
+			raise ValueError("Data must be 5 bytes or less")
+		message = [0x03, self.counter, dataLength]
+		message.extend(data)
+		message = listops.padToLength(message, 8, padding=0)
+		response, msgCounter = self.sendMessage(message)
+		if response[0] != 0xFF or response [1] != 0x00:
+			raise RuntimeError("Download failed")
+		newExtension = response[3]
+		newAddress = listops.listToInt(response[4:8])
+		return newExtension, newAddress
