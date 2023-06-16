@@ -1,0 +1,5 @@
+from typing import List
+
+def printHexList(text: str, n: List[int]):
+	result = [f"0x{num:02X}" for num in n]
+	print(text + str(result))
