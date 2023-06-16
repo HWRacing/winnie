@@ -9,3 +9,10 @@ def splitNumberByBytes(num: int, bigEndian: bool = True) -> List[int]:
 	if bigEndian == True:
 		output.reverse()
 	return output
+
+def padToLength(l: List, targetLength: int, padding=None) -> List:
+	currentLength = len(l)
+	if currentLength > targetLength:
+		raise ValueError(f"List too long ({currentLength}) for target length ({targetLength})")
+	l.extend([padding] * targetLength - currentLength)
+	return l
