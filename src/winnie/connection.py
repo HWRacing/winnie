@@ -13,13 +13,13 @@ class Connection:
 		self.debug = debug
 
 	def sendMessage(self, message: List[int]) -> List[int]:
+		if self.debug == True:
+			formatting.printHexList("Message: ", message)
 		if self.connected == False and message[0] != 0x01:
 			raise RuntimeError("Connection must be established before sending a message")
 		# Ensure that the message is 8 bytes long
 		if len(message) != 8:
 			raise ValueError("Messages must be 8 bytes long")
-		if self.debug == True:
-			formatting.printHexList("Message: ", message)
 		# Construct and send the frame
 		frame = Frame(id_=self.id, data=message)
 		self.channel.write(frame)
