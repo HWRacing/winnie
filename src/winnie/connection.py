@@ -53,7 +53,7 @@ class Connection:
 		else:
 			raise RuntimeError("Connection failed")
 	
-	def disconnect(self, stationID, temporary=False) -> bool:
+	def disconnect(self, stationID: int, temporary=False) -> bool:
 		if self.debug == True:
 			print("DISCONNECT")
 
@@ -61,7 +61,7 @@ class Connection:
 		temporaryByte = 0x01
 		if temporary == True:
 			temporaryByte = 0x00
-		message = [0x07, self.counter, temporaryByte, 0, splitID[0], splitID[1], 0, 0]
+		message = bytearray([0x07, self.counter, temporaryByte, 0, splitID[0], splitID[1], 0, 0])
 		response, msgCounter = self.sendMessage(message)
 		if self.checkForAcknowledgement(response) == True:
 			self.connected = False
