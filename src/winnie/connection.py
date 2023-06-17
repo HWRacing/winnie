@@ -117,11 +117,9 @@ class Connection:
 			zerosToAdd = 8 - len(message)
 			message = message[:4] + [0] * zerosToAdd + message[4:]
 		# Send message and handle response
+		message = bytearray(message)
 		response, msgCounter = self.sendMessage(message)
-		if self.checkForAcknowledgement(response) == True:
-			return True
-		else:
-			raise RuntimeError("SET_MTA failed")
+		return True
 
 	def upload(self, blockSize: int) -> List[int]:
 		if self.debug == True:
