@@ -3,6 +3,7 @@ from typing import List, Tuple
 from winnie import listops
 from winnie import resourceMask as rm
 from winnie import formatting
+from winnie import constants
  
 class Connection:
 	def __init__(self, channel: canlib.Channel, id: int, debug: bool = False):
@@ -18,14 +19,19 @@ class Connection:
 		result = self.channel.read(timeout=500)
 		return result.data
 
+	def verifyMessage(self, message: bytearray) -> bool:
+		if len(message) != 8:
+			raise ValueError("Messages must be 8 bytes long")
+		if message[0] not in constants.commandCodes:
+			raise ValueError(f"{message[0]} is not a valid command code")
+		return True		
+
 	def sendMessage(self, message: bytearray) -> bytearray:
 		if self.debug == True:
 			formatting.printByteArrayWithLabel("Message: ", message)
 		if self.connected == False and message[0] != 0x01:
 			raise RuntimeError("Connection must be established before sending a message")
-		# Ensure that the message is 8 bytes long
-		if len(message) != 8:
-			raise ValueError("Messages must be 8 bytes long")
+		self.verifyMessage(message)
 		# Construct and send the frame
 		frame = Frame(id_=self.id, data=message)
 		result = self.sendFrame(frame)
