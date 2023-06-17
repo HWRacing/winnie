@@ -136,15 +136,12 @@ class Connection:
 		if self.debug == True:
 			print("GET_CCP_VERSION")
 
-		message = [0x1B, self.counter, mainVersion, release, 0, 0, 0, 0]
+		message = bytearray([0x1B, self.counter, mainVersion, release, 0, 0, 0, 0])
 		response, msgCounter = self.sendMessage(message)
-		if self.checkForAcknowledgement(response) == True:
-			returnedMainVersion = response[3]
-			returnedRelease = response[4]
-			return returnedMainVersion, returnedRelease
-		else:
-			raise RuntimeError("GET_CCP_VERSION failed")
-	
+		returnedMainVersion = int(response[3])
+		returnedRelease = int(response[4])
+		return returnedMainVersion, returnedRelease
+
 	def download(self, data: List[int]) -> Tuple[int, int]:
 		if self.debug == True:
 			print("DOWNLOAD")
