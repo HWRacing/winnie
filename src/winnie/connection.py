@@ -130,7 +130,6 @@ class Connection:
 		message = bytearray([0x04, self.counter, blockSize, 0, 0, 0, 0, 0])
 		response, msgCounter = self.sendMessage(message)
 		return response[3:3+blockSize]
-
 	
 	def getCCPVersion(self, mainVersion: int, release: int) -> Tuple[int, int]:
 		if self.debug == True:
