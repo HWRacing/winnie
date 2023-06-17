@@ -18,7 +18,7 @@ class Connection:
 		result = self.channel.read(timeout=500)
 		return result.data
 
-	def sendMessage(self, message: List[int]) -> List[int]:
+	def sendMessage(self, message: bytearray) -> bytearray:
 		if self.debug == True:
 			formatting.printHexList("Message: ", message)
 		if self.connected == False and message[0] != 0x01:
@@ -29,19 +29,19 @@ class Connection:
 		# Construct and send the frame
 		frame = Frame(id_=self.id, data=message)
 		result = self.sendFrame(frame)
-		response = [x for x in result.data]
 		if self.debug == True:
-			formatting.printHexList("Response: ", response)
+			#formatting.printHexList("Response: ", response)
+			pass
 
 		currentCounter = self.counter
 		self.counter += 0x01
 
 		# Verify that the command counter of the response matches the one of the command
-		if response[0] == 0xFF or response[0] == 0xFE:
-			if response[2] != currentCounter:
+		if result[0] == 0xFF or result[0] == 0xFE:
+			if result[2] != currentCounter:
 				raise RuntimeError("Message counter in response does not match")
 
-		return response, currentCounter
+		return result, currentCounter
 
 	def checkForAcknowledgement(self, message: List[int]) -> bool:
 		if message[0] == 0xFF and message[1] == 0x00:
