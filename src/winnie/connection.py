@@ -24,7 +24,7 @@ class Connection:
 			raise ValueError("Messages must be 8 bytes long")
 		if message[0] not in constants.commandCodes:
 			raise ValueError(f"{message[0]} is not a valid command code")
-		return True		
+		return True
 
 	def sendMessage(self, message: bytearray) -> bytearray:
 		if self.debug == True:
@@ -48,11 +48,13 @@ class Connection:
 
 		return result, currentCounter
 
-	def checkForAcknowledgement(self, message: List[int]) -> bool:
-		if message[0] == 0xFF and message[1] == 0x00:
-			return True
-		else:
-			return False
+	def checkForAcknowledgement(self, message: bytearray) -> bool:
+		if message[0] == 0xFF or message[0] == 0xFE:
+			if message[1] == 0x00:
+				return True
+			else:
+				return False
+		raise ValueError("Cannot check for acknowledgement of data acquisition message")
 
 	def connect(self, stationID: int) -> bool:
 		if self.debug == True:
