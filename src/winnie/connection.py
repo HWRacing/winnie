@@ -45,7 +45,7 @@ class Connection:
 			print("CONNECT")
 
 		splitID = listops.splitNumberByBytes(stationID, bigEndian=False)
-		message = [0x01, self.counter, splitID[0], splitID[1], 0, 0, 0, 0]
+		message = bytearray([0x01, self.counter, splitID[0], splitID[1], 0, 0, 0, 0])
 		response, msgCounter = self.sendMessage(message)
 		if self.checkForAcknowledgement(response) == True:
 			self.connected = True
