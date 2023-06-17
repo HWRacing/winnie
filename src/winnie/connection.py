@@ -3,7 +3,6 @@ from typing import List, Tuple
 from winnie import listops
 from winnie import resourceMask as rm
 from winnie import formatting
-from winnie import constants
  
 class Connection:
 	def __init__(self, channel: canlib.Channel, id: int, debug: bool = False):
@@ -18,34 +17,6 @@ class Connection:
 		self.channel.writeSync(timeout=500)
 		result = self.channel.read(timeout=500)
 		return result.data
-
-	def verifyMessage(self, message: bytearray) -> bool:
-		if len(message) != 8:
-			raise ValueError("Messages must be 8 bytes long")
-		if message[0] not in constants.commandCodes:
-			raise ValueError(f"{message[0]} is not a valid command code")
-		return True
-	
-	def verifyReceivedCounter(self, response: bytearray, sentCounter: int) -> bool:
-		if response[0] != 0xFF:
-			raise ValueError("Cannot verify counter of messages other than command return messages")
-		if response[2] != sentCounter:
-			raise RuntimeError(f"Received counter ({response[2]}) does not match sent counter ({sentCounter})")
-		return True
-
-	def verifyResponse(self, response: bytearray, sentCounter: int) -> bool:
-		packetID = response[0]
-		# Command return message
-		if packetID == 0xFF:
-			self.verifyReceivedCounter(response, sentCounter)
-			self.checkForAcknowledgement(response)
-		# Event message
-		elif packetID == 0xFE:
-			self.checkForAcknowledgement(response)
-		# Data Acquisition Message
-		else:		
-			pass
-		return True
 
 	def sendMessage(self, message: bytearray) -> bytearray:
 		if self.debug == True:
@@ -68,14 +39,6 @@ class Connection:
 				raise RuntimeError("Message counter in response does not match")
 
 		return result, currentCounter
-
-	def checkForAcknowledgement(self, message: bytearray) -> bool:
-		if message[0] == 0xFF or message[0] == 0xFE:
-			if message[1] == 0x00:
-				return True
-			else:
-				return False
-		raise ValueError("Cannot check for acknowledgement of data acquisition message")
 
 	def connect(self, stationID: int) -> bool:
 		if self.debug == True:
