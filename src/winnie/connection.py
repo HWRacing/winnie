@@ -28,10 +28,7 @@ class Connection:
 			raise ValueError("Messages must be 8 bytes long")
 		# Construct and send the frame
 		frame = Frame(id_=self.id, data=message)
-		self.channel.write(frame)
-		self.channel.writeSync(timeout=500)
-		# Get the result and increment the counter
-		result = self.channel.read(timeout=500)
+		result = self.sendFrame(frame)
 		response = [x for x in result.data]
 		if self.debug == True:
 			formatting.printHexList("Response: ", response)
