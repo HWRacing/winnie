@@ -87,12 +87,8 @@ class Connection:
 		if self.debug == True:
 			print("GET_SEED")
 
-		message = [0x12, self.counter, resourceMask.getInteger(), 0, 0, 0, 0, 0]
+		message = bytearray([0x12, self.counter, resourceMask.getInteger(), 0, 0, 0, 0, 0])
 		response, msgCounter = self.sendMessage(message)
-		if response[0] != 0xFF:
-			raise RuntimeError(f"Expected packet id 0xFF, received packed ID {response[0]:#x}")
-		if response[1] != 0x00:
-			raise RuntimeError(f"GET_SEED message responded with error code {response[1]:#x}")
 		return response[4:]
 
 	def unlock(self, key: Tuple[int, int, int, int, int, int]) -> rm.ResourceMask:
