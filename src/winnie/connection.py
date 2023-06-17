@@ -121,18 +121,16 @@ class Connection:
 		response, msgCounter = self.sendMessage(message)
 		return True
 
-	def upload(self, blockSize: int) -> List[int]:
+	def upload(self, blockSize: int) -> bytearray:
 		if self.debug == True:
 			print("UPLOAD")
 
 		if blockSize > 5:
 			raise ValueError("Block size must be 5 bytes or less")
-		message = [0x04, self.counter, blockSize, 0, 0, 0, 0, 0]
+		message = bytearray([0x04, self.counter, blockSize, 0, 0, 0, 0, 0])
 		response, msgCounter = self.sendMessage(message)
-		if self.checkForAcknowledgement(response) == True:
-			return response[3:3+blockSize]
-		else:
-			raise ValueError("UPLOAD failed")
+		return response[3:3+blockSize]
+
 	
 	def getCCPVersion(self, mainVersion: int, release: int) -> Tuple[int, int]:
 		if self.debug == True:
