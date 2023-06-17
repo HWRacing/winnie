@@ -20,7 +20,7 @@ class Connection:
 
 	def sendMessage(self, message: bytearray) -> bytearray:
 		if self.debug == True:
-			formatting.printHexList("Message: ", message)
+			formatting.printByteArrayWithLabel("Message: ", message)
 		if self.connected == False and message[0] != 0x01:
 			raise RuntimeError("Connection must be established before sending a message")
 		# Ensure that the message is 8 bytes long
@@ -30,8 +30,7 @@ class Connection:
 		frame = Frame(id_=self.id, data=message)
 		result = self.sendFrame(frame)
 		if self.debug == True:
-			#formatting.printHexList("Response: ", response)
-			pass
+			formatting.printByteArrayWithLabel("Response: ", response)
 
 		currentCounter = self.counter
 		self.counter += 0x01
