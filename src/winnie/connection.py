@@ -91,19 +91,17 @@ class Connection:
 		response, msgCounter = self.sendMessage(message)
 		return response[4:]
 
-	def unlock(self, key: Tuple[int, int, int, int, int, int]) -> rm.ResourceMask:
+	def unlock(self, key: bytearray) -> rm.ResourceMask:
 		if self.debug == True:
 			print("UNLOCK")
-
-		message = [0x13, self.counter]
+		if len(key) != 6:
+			raise ValueError(f"Key must be 6 bytes long, was {len(key)} bytes long")
+		message = bytearray([0x13, self.counter])
 		message.extend(key)
 		response, msgCounter = self.sendMessage(message)
-		if self.checkForAcknowledgement(response) == True:
-			result = rm.ResourceMask(False, False, False)
-			result.setFromInteger(response[3])
-			return result
-		else:
-			raise RuntimeError("UNLOCK failed")
+		result = rm.ResourceMask(False, False, False)
+		result.setFromInteger(response[3])
+		return result
 
 	def setMemoryTransferAddress(self, mtaNumber: int, extension: int, address: int) -> bool:
 		if self.debug == True:
