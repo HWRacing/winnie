@@ -73,7 +73,7 @@ class Connection:
 		if self.debug == True:
 			print("EXCHANGE_ID")
 
-		message = [0x17, self.counter, 0, 0, 0, 0, 0, 0]
+		message = bytearray([0x17, self.counter, 0, 0, 0, 0, 0, 0])
 		response, msgCounter = self.sendMessage(message)
 		# Initialise two resource mask objects
 		availabilityMask = rm.ResourceMask(False, False, False)
