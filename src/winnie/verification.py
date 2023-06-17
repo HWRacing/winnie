@@ -35,4 +35,3 @@ def verifyResponse(response: bytearray, sentCounter: int) -> bool:
 	else:		
 		pass
 	return True
-	
