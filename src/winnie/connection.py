@@ -142,19 +142,17 @@ class Connection:
 		returnedRelease = int(response[4])
 		return returnedMainVersion, returnedRelease
 
-	def download(self, data: List[int]) -> Tuple[int, int]:
+	def download(self, data: bytearray) -> Tuple[int, int]:
 		if self.debug == True:
 			print("DOWNLOAD")
 
 		dataLength = len(data)
 		if dataLength > 5:
 			raise ValueError("Data must be 5 bytes or less")
-		message = [0x03, self.counter, dataLength]
+		message = bytearray([0x03, self.counter, dataLength])
 		message.extend(data)
 		message = listops.padToLength(message, 8, padding=0)
 		response, msgCounter = self.sendMessage(message)
-		if self.checkForAcknowledgement(response) == True:
-			raise RuntimeError("Download failed")
-		newExtension = response[3]
-		newAddress = listops.listToInt(response[4:8])
+		newExtension = int(response[3])
+		newAddress = listops.listToInt(list(response[4:8]))
 		return newExtension, newAddress
