@@ -16,7 +16,7 @@ class Connection:
 		self.channel.write(frame)
 		self.channel.writeSync(timeout=500)
 		result = self.channel.read(timeout=500)
-		return result
+		return result.data
 
 	def sendMessage(self, message: List[int]) -> List[int]:
 		if self.debug == True:
