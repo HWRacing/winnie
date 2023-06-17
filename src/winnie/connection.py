@@ -33,6 +33,20 @@ class Connection:
 			raise RuntimeError(f"Received counter ({response[2]}) does not match sent counter ({sentCounter})")
 		return True
 
+	def verifyResponse(self, response: bytearray, sentCounter: int) -> bool:
+		packetID = response[0]
+		# Command return message
+		if packetID == 0xFF:
+			self.verifyReceivedCounter(response, sentCounter)
+			self.checkForAcknowledgement(response)
+		# Event message
+		elif packetID == 0xFE:
+			self.checkForAcknowledgement(response)
+		# Data Acquisition Message
+		else:		
+			pass
+		return True
+
 	def sendMessage(self, message: bytearray) -> bytearray:
 		if self.debug == True:
 			formatting.printByteArrayWithLabel("Message: ", message)
