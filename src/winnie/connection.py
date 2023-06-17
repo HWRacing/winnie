@@ -36,7 +36,7 @@ class Connection:
 		frame = Frame(id_=self.id, data=message)
 		result = self.sendFrame(frame)
 		if self.debug == True:
-			formatting.printByteArrayWithLabel("Response: ", response)
+			formatting.printByteArrayWithLabel("Response: ", result)
 
 		currentCounter = self.counter
 		self.counter += 0x01
