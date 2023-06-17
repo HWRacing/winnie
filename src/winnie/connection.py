@@ -3,6 +3,7 @@ from typing import List, Tuple
 from winnie import listops
 from winnie import resourceMask as rm
 from winnie import formatting
+from winnie import verification
  
 class Connection:
 	def __init__(self, channel: canlib.Channel, id: int, debug: bool = False):
@@ -32,11 +33,7 @@ class Connection:
 
 		currentCounter = self.counter
 		self.counter += 0x01
-
-		# Verify that the command counter of the response matches the one of the command
-		if result[0] == 0xFF or result[0] == 0xFE:
-			if result[2] != currentCounter:
-				raise RuntimeError("Message counter in response does not match")
+		verification.verifyResponse(result, currentCounter)
 
 		return result, currentCounter
 
