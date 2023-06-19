@@ -24,7 +24,7 @@ class Connection:
 			formatting.printByteArrayWithLabel("Message: ", message)
 		if self.connected == False and message[0] != 0x01:
 			raise RuntimeError("Connection must be established before sending a message")
-		self.verifyMessage(message)
+		verification.verifyMessage(message)
 		# Construct and send the frame
 		frame = Frame(id_=self.id, data=message)
 		result = self.sendFrame(frame)
