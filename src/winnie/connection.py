@@ -152,3 +152,23 @@ class Connection:
 		newExtension = int(response[3])
 		newAddress = listops.listToInt(list(response[4:8]))
 		return newExtension, newAddress
+
+	def setSessionStatus(self, cal: bool, daq: bool, resume: bool, store: bool, run: bool) -> bool:
+		if self.debug == True:
+			print("SET_S_STATUS")
+		
+		sessionInt = 0
+		if cal == True:
+			sessionInt += 1
+		if daq == True:
+			sessionInt += 2
+		if resume == True:
+			sessionInt += 4
+		if store == True:
+			sessionInt += 64
+		if run == True:
+			sessionInt += 128
+		
+		message = bytearray([0x0C, self.counter, sessionInt, 0, 0, 0, 0, 0])
+		response, msgCounter = self.sendMessage(message)
+		return True
