@@ -5,5 +5,5 @@ def printHexList(text: str, n: List[int]):
 	print(text + str(result))
 
 def printByteArrayWithLabel(text: str, n: bytearray):
-	intList = list(bytearray)
-	printHexList(text, n)
+	intList = list(n)
+	printHexList(text, intList)
