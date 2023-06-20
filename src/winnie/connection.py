@@ -13,6 +13,9 @@ class Connection:
 		self.counter = 0
 		self.id = id
 		self.debug = debug
+		self.mta = None
+		self.mtaExtension = None
+		self.mtaNumber = None
 	
 	def sendFrame(self, frame: Frame) -> bytearray:
 		self.channel.write(frame)
@@ -115,6 +118,9 @@ class Connection:
 		# Send message and handle response
 		message = bytearray(message)
 		response, msgCounter = self.sendMessage(message)
+		self.mta = address
+		self.mtaExtension = extension
+		self.mtaNumber = mtaNumber
 		return True
 
 	def upload(self, blockSize: int) -> bytearray:
