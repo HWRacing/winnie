@@ -159,6 +159,8 @@ class Connection:
 		return True
 	
 	def downloadSix(self, data: bytearray) -> bool:
+		if self.debug == True:
+			print("DNLOAD_6")
 		dataLength = len(data)
 		if dataLength != 6:
 			raise ValueError("Data must be 6 bytes long")
