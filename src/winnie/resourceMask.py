@@ -18,3 +18,9 @@ class ResourceMask:
 		self.write = (n & 1) != 0
 		self.read = (n & 2) != 0
 		self.flash = (n & 64) != 0
+
+def maskFromInt(maskInt: int) -> ResourceMask:
+	write = (maskInt & 1) != 0
+	read = (maskInt & 2) != 0
+	flash = (maskInt & 64) != 0
+	return ResourceMask(read, write, flash)
