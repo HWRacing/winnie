@@ -97,9 +97,7 @@ class Connection:
 		message = bytearray([0x13, self.counter])
 		message.extend(key)
 		response, msgCounter = self.sendMessage(message)
-		result = rm.ResourceMask(False, False, False)
-		result.setFromInteger(response[3])
-		return result
+		return rm.maskFromInt(response[3])
 
 	def setMemoryTransferAddress(self, mtaNumber: int, extension: int, address: int) -> bool:
 		if self.debug == True:
