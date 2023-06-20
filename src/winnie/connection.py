@@ -143,7 +143,7 @@ class Connection:
 		returnedRelease = int(response[4])
 		return returnedMainVersion, returnedRelease
 
-	def download(self, data: bytearray) -> Tuple[int, int]:
+	def download(self, data: bytearray) -> bool:
 		if self.debug == True:
 			print("DOWNLOAD")
 
@@ -154,9 +154,9 @@ class Connection:
 		message.extend(data)
 		message = listops.padToLength(message, 8, padding=0)
 		response, msgCounter = self.sendMessage(message)
-		newExtension = int(response[3])
-		newAddress = listops.listToInt(list(response[4:8]))
-		return newExtension, newAddress
+		self.mtaExtension = int(response[3])
+		self.mta = listops.listToInt(list(response[4:8]))
+		return True
 
 	def setSessionStatus(self, status: sStatus.sessionStatus) -> bool:
 		if self.debug == True:
