@@ -19,3 +19,11 @@ class sessionStatus:
 		if self.run == True:
 			output += 128
 		return output
+
+def statusFromInt(self, sessionInt: int) -> sessionStatus:
+	cal = (sessionInt & 1) != 0
+	daq = (sessionInt & 2) != 0
+	resume = (sessionInt & 4) != 0
+	store = (sessionInt & 64) != 0
+	run = (sessionInt & 128) != 0
+	return sessionStatus(cal, daq, resume, store, run)
