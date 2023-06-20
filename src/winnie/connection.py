@@ -161,3 +161,10 @@ class Connection:
 		message = bytearray([0x0C, self.counter, sessionInt, 0, 0, 0, 0, 0])
 		response, msgCounter = self.sendMessage(message)
 		return True
+
+	def setSessionStatus(self) -> sStatus.sessionStatus:
+		if self.debug == True:
+			print("GET_S_STATUS")
+		message = bytearray([0x0D, self.counter, 0, 0, 0, 0, 0, 0])
+		response, msgCounter = self.sendMessage(message)
+		return sStatus.statusFromInt(response[3])
