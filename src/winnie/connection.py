@@ -157,6 +157,16 @@ class Connection:
 		self.mtaExtension = int(response[3])
 		self.mta = listops.listToInt(list(response[4:8]))
 		return True
+	
+	def downloadSix(self, data: bytearray) -> bool:
+		dataLength = len(data)
+		if dataLength != 6:
+			raise ValueError("Data must be 6 bytes long")
+		message = bytearray([0x23, self.counter, data[0], data[1], data[2], data[3], data[4], data[5]])
+		response, msgCounter = self.sendMessage(message)
+		self.mtaExtension = int(response[3])
+		self.mta = listops.listToInt(list(response[4:8]))
+		return True
 
 	def setSessionStatus(self, status: sStatus.sessionStatus) -> bool:
 		if self.debug == True:
