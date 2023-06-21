@@ -196,3 +196,10 @@ class Connection:
 		message = bytearray([0x0D, self.counter, 0, 0, 0, 0, 0, 0])
 		response, msgCounter = self.sendMessage(message)
 		return sStatus.statusFromInt(response[3])
+
+	def selectCalibrationPage(self) -> bool:
+		if self.debug == True:
+			print("SELECT_CAL_PAGE")
+		message = bytearray([0x11, self.counter, 0, 0, 0, 0, 0, 0])
+		response, msgCounter = self.sendMessage(message)
+		return True
