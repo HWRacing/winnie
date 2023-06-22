@@ -48,7 +48,7 @@ class Connection:
 		splitID = listops.splitNumberByBytes(stationID, bigEndian=False)
 		message = bytearray([0x01, self.counter, splitID[0], splitID[1], 0, 0, 0, 0])
 		response, msgCounter = self.sendMessage(message)
-		if self.checkForAcknowledgement(response) == True:
+		if verification.verifyResponse(response) == True:
 			self.connected = True
 			return True
 		else:
@@ -64,7 +64,7 @@ class Connection:
 			temporaryByte = 0x00
 		message = bytearray([0x07, self.counter, temporaryByte, 0, splitID[0], splitID[1], 0, 0])
 		response, msgCounter = self.sendMessage(message)
-		if self.checkForAcknowledgement(response) == True:
+		if verification.verifyResponse(response) == True:
 			self.connected = False
 			return True
 		else:
