@@ -1,4 +1,4 @@
-def intToByteArray(n: int, bigEndian: bool = False) -> bytearray:
+def intToByteArray(num: int, bigEndian: bool = False) -> bytearray:
 	output = []
 	while num > 0:
 		output.append(num % 256)
