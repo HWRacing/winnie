@@ -107,9 +107,7 @@ class Connection:
 			print("UNLOCK")
 		if len(key) != 6:
 			raise ValueError(f"Key must be 6 bytes long, was {len(key)} bytes long")
-		message = bytearray([0x13, self.counter])
-		message.extend(key)
-		response, msgCounter = self.sendMessage(message)
+		response = self.sendCRO(0x13, payload=key)
 		return rm.maskFromInt(response[3])
 
 	def setMemoryTransferAddress(self, mtaNumber: int, extension: int, address: int) -> bool:
