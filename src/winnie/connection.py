@@ -137,14 +137,17 @@ class Connection:
 		self.mta += blockSize
 		return response[3:3+blockSize]
 	
-	# def shortUpload(self, blockSize: int, extension: int, address: int) -> bytearray:
-	# 	if self.debug == True:
-	# 		print("SHORT_UP")
-	# 	if blockSize > 5:
-	# 		raise ValueError("Block size must be 5 bytes or less")
-	# 	message = bytearray([0x0F, self.counter, blockSize, extension, address, 0, 0, 0])
-	# 	response, msgCounter = self.sendMessage(message)
-	# 	return response[3:3+blockSize]
+	def shortUpload(self, blockSize: int, extension: int, address: int) -> bytearray:
+		if self.debug == True:
+			print("SHORT_UP")
+		if blockSize > 5:
+			raise ValueError("Block size must be 5 bytes or less")
+		addressBytes = byteops.intToByteArray(address, bigEndian=True)
+		# Add leading zeros to address
+		addressBytes = byteops.extendBytearray(addressBytes, 4, left=True)
+		payload = bytearray(blockSize, extension) + addressBytes
+		response = self.sendCRO(0x0F, payload=payload)
+		return response[3:3+blockSize]
 	
 	def getCCPVersion(self, mainVersion: int, release: int) -> Tuple[int, int]:
 		if self.debug == True:
