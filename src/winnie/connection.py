@@ -31,7 +31,7 @@ class Connection:
 	def constructCRO(self, commandCode: int, payload: bytearray) -> bytearray:
 		if len(payload) > 6:
 			raise ValueError(f"Payload must be 6 bytes or less, was actually {len(payload)}")
-		cro = bytearray([commandCode])
+		cro = bytearray([commandCode, self.counter])
 		cro.extend(payload)
 		if len(cro) < 8:
 			cro.extend([0x00] * (8 - len(cro)))
