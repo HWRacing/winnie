@@ -20,7 +20,7 @@ class sessionStatus:
 			output += 128
 		return output
 
-def statusFromInt(self, sessionInt: int) -> sessionStatus:
+def statusFromInt(sessionInt: int) -> sessionStatus:
 	cal = (sessionInt & 1) != 0
 	daq = (sessionInt & 2) != 0
 	resume = (sessionInt & 4) != 0
