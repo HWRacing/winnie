@@ -102,8 +102,9 @@ class Connection:
 		if self.debug == True:
 			print("GET_SEED")
 
-		message = bytearray([0x12, self.counter, resourceMask.getInteger(), 0, 0, 0, 0, 0])
-		response, msgCounter = self.sendMessage(message)
+		commandCode = 0x12
+		payload = bytearray([resourceMask.getInteger()])
+		response = self.sendCRO(commandCode, payload)
 		return response[4:]
 
 	def unlock(self, key: bytearray) -> rm.ResourceMask:
