@@ -1,5 +1,5 @@
 from canlib import canlib, Frame
-from typing import List, Tuple
+from typing import List, Tuple, Callable
 from winnie import listops
 from winnie import resourceMask as rm
 from winnie import formatting
@@ -18,6 +18,10 @@ class Connection:
 		self.mtaExtension = None
 		self.mtaNumber = None
 	
+	def debugPrint(self, s: str):
+		if self.debug:
+			print(s)
+
 	def incrementCounter(self):
 		self.counter += 1
 		if self.counter > 0xFF:
@@ -64,16 +68,14 @@ class Connection:
 		return result
 
 	def connect(self, stationID: int) -> bool:
-		if self.debug == True:
-			print("CONNECT")
+		self.debugPrint("CONNECT")
 		idBytes = byteops.intToByteArray(stationID)
 		self.sendCRO(0x01, payload=idBytes)
 		self.connected = True
 		return True
 	
 	def disconnect(self, stationID: int, temporary=False) -> bool:
-		if self.debug == True:
-			print("DISCONNECT")
+		self.debugPrint("DISCONNECT")
 		idBytes = byteops.intToByteArray(stationID)
 		temporaryByte = 0x01
 		if temporary == True:
@@ -84,8 +86,7 @@ class Connection:
 		return True
 	
 	def exchangeID(self) -> Tuple[rm.ResourceMask, rm.ResourceMask]:
-		if self.debug == True:
-			print("EXCHANGE_ID")
+		self.debugPrint("EXCHANGE_ID")
 		response = self.sendCRO(0x17)
 		# Initialise two resource mask objects
 		availabilityMask = rm.ResourceMask(False, False, False)
@@ -96,23 +97,20 @@ class Connection:
 		return availabilityMask, protectionMask
 
 	def getSeed(self, resourceMask: rm.ResourceMask) -> List[int]:
-		if self.debug == True:
-			print("GET_SEED")
+		self.debugPrint("GET_SEED")
 		payload = bytearray([resourceMask.getInteger()])
 		response = self.sendCRO(0x12, payload=payload)
 		return response[4:]
 
 	def unlock(self, key: bytearray) -> rm.ResourceMask:
-		if self.debug == True:
-			print("UNLOCK")
+		self.debugPrint("UNLOCK")
 		if len(key) != 6:
 			raise ValueError(f"Key must be 6 bytes long, was {len(key)} bytes long")
 		response = self.sendCRO(0x13, payload=key)
 		return rm.maskFromInt(response[3])
 
 	def setMemoryTransferAddress(self, mtaNumber: int, extension: int, address: int) -> bool:
-		if self.debug == True:
-			print("SET_MTA")
+		self.debugPrint("SET_MTA")
 		if mtaNumber != 0 and mtaNumber != 1:
 			raise ValueError("Memory transfer address number must be 0 or 1")
 		addressBytes = byteops.intToByteArray(address, bigEndian=True)
@@ -126,8 +124,7 @@ class Connection:
 		return True
 
 	def upload(self, blockSize: int) -> bytearray:
-		if self.debug == True:
-			print("UPLOAD")
+		self.debugPrint("UPLOAD")
 		if blockSize > 5:
 			raise ValueError("Block size must be 5 bytes or less")
 		payload = bytearray([blockSize])
@@ -136,8 +133,7 @@ class Connection:
 		return response[3:3+blockSize]
 	
 	def shortUpload(self, blockSize: int, extension: int, address: int) -> bytearray:
-		if self.debug == True:
-			print("SHORT_UP")
+		self.debugPrint("SHORT_UP")
 		if blockSize > 5:
 			raise ValueError("Block size must be 5 bytes or less")
 		addressBytes = byteops.intToByteArray(address, bigEndian=True)
@@ -148,8 +144,7 @@ class Connection:
 		return response[3:3+blockSize]
 	
 	def getCCPVersion(self, mainVersion: int, release: int) -> Tuple[int, int]:
-		if self.debug == True:
-			print("GET_CCP_VERSION")
+		self.debugPrint("GET_CCP_VERSION")
 		payload = bytearray([mainVersion, release])
 		response = self.sendCRO(0x1B, payload=payload)
 		returnedMainVersion = int(response[3])
@@ -157,8 +152,7 @@ class Connection:
 		return returnedMainVersion, returnedRelease
 
 	def download(self, data: bytearray) -> bool:
-		if self.debug == True:
-			print("DOWNLOAD")
+		self.debugPrint("DOWNLOAD")
 		dataLength = len(data)
 		if dataLength > 5:
 			raise ValueError("Data must be 5 bytes or less")
@@ -169,8 +163,7 @@ class Connection:
 		return True
 	
 	def downloadSix(self, data: bytearray) -> bool:
-		if self.debug == True:
-			print("DNLOAD_6")
+		self.debugPrint("DNLOAD_6")
 		dataLength = len(data)
 		if dataLength != 6:
 			raise ValueError("Data must be 6 bytes long")
@@ -180,20 +173,17 @@ class Connection:
 		return True
 
 	def setSessionStatus(self, status: sStatus.sessionStatus) -> bool:
-		if self.debug == True:
-			print("SET_S_STATUS")
+		self.debugPrint("SET_S_STATUS")
 		sessionInt = status.getInteger()
 		self.sendCRO(0x0C, payload=bytearray([sessionInt]))
 		return True
 
 	def getSessionStatus(self) -> sStatus.sessionStatus:
-		if self.debug == True:
-			print("GET_S_STATUS")
+		self.debugPrint("GET_S_STATUS")
 		response = self.sendCRO(0x0D)
 		return sStatus.statusFromInt(response[3])
 
 	def selectCalibrationPage(self) -> bool:
-		if self.debug == True:
-			print("SELECT_CAL_PAGE")
+		self.debugPrint("SELECT_CAL_PAGE")
 		self.sendCRO(0x11)
 		return True
