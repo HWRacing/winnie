@@ -13,6 +13,11 @@ class Connection:
 		self.id = id
 		self.debug = debug
 	
+	def incrementCounter(self):
+		self.counter += 1
+		if self.counter > 0xFF:
+			self.counter = 0x00
+	
 	def sendFrame(self, frame: Frame) -> bytearray:
 		self.channel.write(frame)
 		self.channel.writeSync(timeout=500)
@@ -32,7 +37,7 @@ class Connection:
 			formatting.printByteArrayWithLabel("Response: ", result)
 
 		currentCounter = self.counter
-		self.counter += 0x01
+		self.incrementCounter()
 		verification.verifyResponse(result, currentCounter)
 
 		return result, currentCounter
