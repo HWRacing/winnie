@@ -189,8 +189,8 @@ class Connection:
 		dataLength = len(data)
 		if dataLength != 6:
 			raise ValueError("Data must be 6 bytes long")
-		message = bytearray([0x23, self.counter, data[0], data[1], data[2], data[3], data[4], data[5]])
-		response, msgCounter = self.sendMessage(message)
+		commandCode = 0x23
+		response = self.sendCRO(commandCode, data)
 		self.mtaExtension = int(response[3])
 		self.mta = listops.listToInt(list(response[4:8]))
 		return True
