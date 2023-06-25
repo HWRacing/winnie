@@ -61,11 +61,8 @@ class Connection:
 			temporaryByte = 0x00
 		message = bytearray([0x07, self.counter, temporaryByte, 0, splitID[0], splitID[1], 0, 0])
 		response, msgCounter = self.sendMessage(message)
-		if verification.verifyResponse(response) == True:
-			self.connected = False
-			return True
-		else:
-			raise RuntimeError("Disconnect failed")
+		self.connected = False
+		return True
 	
 	def exchangeID(self) -> Tuple[rm.ResourceMask, rm.ResourceMask]:
 		if self.debug == True:
