@@ -48,11 +48,8 @@ class Connection:
 		splitID = listops.splitNumberByBytes(stationID, bigEndian=False)
 		message = bytearray([0x01, self.counter, splitID[0], splitID[1], 0, 0, 0, 0])
 		response, msgCounter = self.sendMessage(message)
-		if verification.verifyResponse(response) == True:
-			self.connected = True
-			return True
-		else:
-			raise RuntimeError("Connection failed")
+		self.connected = True
+		return True
 	
 	def disconnect(self, stationID: int, temporary=False) -> bool:
 		if self.debug == True:
