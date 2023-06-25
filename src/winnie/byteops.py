@@ -7,3 +7,14 @@ def intToByteArray(num: int, bigEndian: bool = False) -> bytearray:
 	if bigEndian == True:
 		output.reverse()
 	return bytearray(output)
+
+def extendBytearray(b: bytearray, targetLength: int, left: bool = False, padding: int = 0x00) -> bytearray:
+	currentLength = len(b)
+	if currentLength >= targetLength:
+		return b
+	paddingLength = targetLength - currentLength
+	paddingBytes = bytearray([padding] * paddingLength)
+	if left:
+		return paddingBytes + b
+	else:
+		return b + paddingBytes
