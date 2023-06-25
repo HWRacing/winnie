@@ -176,10 +176,9 @@ class Connection:
 		dataLength = len(data)
 		if dataLength > 5:
 			raise ValueError("Data must be 5 bytes or less")
-		message = bytearray([0x03, self.counter, dataLength])
-		message.extend(data)
-		message = listops.padToLength(message, 8, padding=0)
-		response, msgCounter = self.sendMessage(message)
+		commandCode = 0x03
+		payload = bytearray([dataLength]) + data
+		response = self.sendCRO(commandCode, payload)
 		self.mtaExtension = int(response[3])
 		self.mta = listops.listToInt(list(response[4:8]))
 		return True
