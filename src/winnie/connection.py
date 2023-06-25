@@ -135,8 +135,9 @@ class Connection:
 			print("UPLOAD")
 		if blockSize > 5:
 			raise ValueError("Block size must be 5 bytes or less")
-		message = bytearray([0x04, self.counter, blockSize, 0, 0, 0, 0, 0])
-		response, msgCounter = self.sendMessage(message)
+		commandCode = 0x04
+		payload = bytearray([blockSize])
+		response = self.sendCRO(commandCode, payload)
 		self.mta += blockSize
 		return response[3:3+blockSize]
 	
