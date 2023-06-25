@@ -64,30 +64,27 @@ class Connection:
 	def connect(self, stationID: int) -> bool:
 		if self.debug == True:
 			print("CONNECT")
-		commandCode = 0x01
 		idBytes = byteops.intToByteArray(stationID)
-		self.sendCRO(commandCode, idBytes)
+		self.sendCRO(0x01, idBytes)
 		self.connected = True
 		return True
 	
 	def disconnect(self, stationID: int, temporary=False) -> bool:
 		if self.debug == True:
 			print("DISCONNECT")
-		commandCode = 0x07
 		idBytes = byteops.intToByteArray(stationID)
 		temporaryByte = 0x01
 		if temporary == True:
 			temporaryByte = 0x00
 		payload = bytearray([temporaryByte, 0]) + idBytes
-		self.sendCRO(commandCode, payload)
+		self.sendCRO(0x07, payload)
 		self.connected = False
 		return True
 	
 	def exchangeID(self) -> Tuple[rm.ResourceMask, rm.ResourceMask]:
 		if self.debug == True:
 			print("EXCHANGE_ID")
-		commandCode = 0x17
-		response = self.sendCRO(commandCode, bytearray())
+		response = self.sendCRO(0x17, bytearray())
 		# Initialise two resource mask objects
 		availabilityMask = rm.ResourceMask(False, False, False)
 		protectionMask = rm.ResourceMask(False, False, False)
@@ -99,9 +96,8 @@ class Connection:
 	def getSeed(self, resourceMask: rm.ResourceMask) -> List[int]:
 		if self.debug == True:
 			print("GET_SEED")
-		commandCode = 0x12
 		payload = bytearray([resourceMask.getInteger()])
-		response = self.sendCRO(commandCode, payload)
+		response = self.sendCRO(0x12, payload)
 		return response[4:]
 
 	def unlock(self, key: bytearray) -> rm.ResourceMask:
@@ -122,9 +118,8 @@ class Connection:
 		addressBytes = byteops.intToByteArray(address, bigEndian=True)
 		# Add leading zeros to address
 		addressBytes = byteops.extendBytearray(addressBytes, 4, left=True)
-		commandCode = 0x02
 		payload = bytearray([mtaNumber, extension]) + addressBytes
-		self.sendCRO(commandCode, payload)
+		self.sendCRO(0x02, payload)
 		self.mta = address
 		self.mtaExtension = extension
 		self.mtaNumber = mtaNumber
@@ -135,9 +130,8 @@ class Connection:
 			print("UPLOAD")
 		if blockSize > 5:
 			raise ValueError("Block size must be 5 bytes or less")
-		commandCode = 0x04
 		payload = bytearray([blockSize])
-		response = self.sendCRO(commandCode, payload)
+		response = self.sendCRO(0x04, payload)
 		self.mta += blockSize
 		return response[3:3+blockSize]
 	
@@ -153,9 +147,8 @@ class Connection:
 	def getCCPVersion(self, mainVersion: int, release: int) -> Tuple[int, int]:
 		if self.debug == True:
 			print("GET_CCP_VERSION")
-		commandCode = 0x1B
 		payload = bytearray([mainVersion, release])
-		response = self.sendCRO(commandCode, payload)
+		response = self.sendCRO(0x1B, payload)
 		returnedMainVersion = int(response[3])
 		returnedRelease = int(response[4])
 		return returnedMainVersion, returnedRelease
@@ -166,9 +159,8 @@ class Connection:
 		dataLength = len(data)
 		if dataLength > 5:
 			raise ValueError("Data must be 5 bytes or less")
-		commandCode = 0x03
 		payload = bytearray([dataLength]) + data
-		response = self.sendCRO(commandCode, payload)
+		response = self.sendCRO(0x03, payload)
 		self.mtaExtension = int(response[3])
 		self.mta = listops.listToInt(list(response[4:8]))
 		return True
@@ -179,8 +171,7 @@ class Connection:
 		dataLength = len(data)
 		if dataLength != 6:
 			raise ValueError("Data must be 6 bytes long")
-		commandCode = 0x23
-		response = self.sendCRO(commandCode, data)
+		response = self.sendCRO(0x23, data)
 		self.mtaExtension = int(response[3])
 		self.mta = listops.listToInt(list(response[4:8]))
 		return True
@@ -189,20 +180,17 @@ class Connection:
 		if self.debug == True:
 			print("SET_S_STATUS")
 		sessionInt = status.getInteger()
-		commandCode = 0x0C
-		self.sendCRO(commandCode, bytearray([sessionInt]))
+		self.sendCRO(0x0C, bytearray([sessionInt]))
 		return True
 
 	def getSessionStatus(self) -> sStatus.sessionStatus:
 		if self.debug == True:
 			print("GET_S_STATUS")
-		commandCode = 0x0D
-		response = self.sendCRO(commandCode, bytearray())
+		response = self.sendCRO(0x0D, bytearray())
 		return sStatus.statusFromInt(response[3])
 
 	def selectCalibrationPage(self) -> bool:
 		if self.debug == True:
 			print("SELECT_CAL_PAGE")
-		commandCode = 0x11
-		self.sendCRO(commandCode, bytearray())
+		self.sendCRO(0x11, bytearray())
 		return True
