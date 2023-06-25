@@ -5,6 +5,7 @@ from winnie import resourceMask as rm
 from winnie import formatting
 from winnie import verification
 from winnie import sessionStatus as sStatus
+from winnie import byteops
 
 class Connection:
 	def __init__(self, channel: canlib.Channel, id: int, debug: bool = False):
@@ -64,9 +65,9 @@ class Connection:
 		if self.debug == True:
 			print("CONNECT")
 
-		splitID = listops.splitNumberByBytes(stationID, bigEndian=False)
-		message = bytearray([0x01, self.counter, splitID[0], splitID[1], 0, 0, 0, 0])
-		response, msgCounter = self.sendMessage(message)
+		commandCode = 0x01
+		idBytes = byteops.intToByteArray(stationID)
+		self.sendCRO(commandCode, idBytes)
 		self.connected = True
 		return True
 	
