@@ -207,8 +207,8 @@ class Connection:
 	def getSessionStatus(self) -> sStatus.sessionStatus:
 		if self.debug == True:
 			print("GET_S_STATUS")
-		message = bytearray([0x0D, self.counter, 0, 0, 0, 0, 0, 0])
-		response, msgCounter = self.sendMessage(message)
+		commandCode = 0x0D
+		response = self.sendCRO(commandCode, bytearray())
 		return sStatus.statusFromInt(response[3])
 
 	def selectCalibrationPage(self) -> bool:
