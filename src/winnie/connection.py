@@ -74,13 +74,13 @@ class Connection:
 	def disconnect(self, stationID: int, temporary=False) -> bool:
 		if self.debug == True:
 			print("DISCONNECT")
-
-		splitID = listops.splitNumberByBytes(stationID, bigEndian=False)
+		commandCode = 0x07
+		idBytes = byteops.intToByteArray(stationID)
 		temporaryByte = 0x01
 		if temporary == True:
 			temporaryByte = 0x00
-		message = bytearray([0x07, self.counter, temporaryByte, 0, splitID[0], splitID[1], 0, 0])
-		response, msgCounter = self.sendMessage(message)
+		payload = bytearray([temporaryByte, 0]) + idBytes
+		self.sendCRO(commandCode, payload)
 		self.connected = False
 		return True
 	
