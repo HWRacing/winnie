@@ -29,9 +29,11 @@ class Connection:
 		result = self.channel.read(timeout=500)
 		return result.data
 
-	def constructCRO(self, commandCode: int, payload: bytearray) -> bytearray:
+	def constructCRO(self, commandCode: int, payload: bytearray=None) -> bytearray:
 		if len(payload) > 6:
 			raise ValueError(f"Payload must be 6 bytes or less, was actually {len(payload)}")
+		if payload == None:
+			payload = bytearray()
 		cro = bytearray([commandCode, self.counter])
 		cro.extend(payload)
 		if len(cro) < 8:
@@ -65,7 +67,7 @@ class Connection:
 		if self.debug == True:
 			print("CONNECT")
 		idBytes = byteops.intToByteArray(stationID)
-		self.sendCRO(0x01, idBytes)
+		self.sendCRO(0x01, payload=idBytes)
 		self.connected = True
 		return True
 	
@@ -77,14 +79,14 @@ class Connection:
 		if temporary == True:
 			temporaryByte = 0x00
 		payload = bytearray([temporaryByte, 0]) + idBytes
-		self.sendCRO(0x07, payload)
+		self.sendCRO(0x07, payload=payload)
 		self.connected = False
 		return True
 	
 	def exchangeID(self) -> Tuple[rm.ResourceMask, rm.ResourceMask]:
 		if self.debug == True:
 			print("EXCHANGE_ID")
-		response = self.sendCRO(0x17, bytearray())
+		response = self.sendCRO(0x17)
 		# Initialise two resource mask objects
 		availabilityMask = rm.ResourceMask(False, False, False)
 		protectionMask = rm.ResourceMask(False, False, False)
@@ -97,7 +99,7 @@ class Connection:
 		if self.debug == True:
 			print("GET_SEED")
 		payload = bytearray([resourceMask.getInteger()])
-		response = self.sendCRO(0x12, payload)
+		response = self.sendCRO(0x12, payload=payload)
 		return response[4:]
 
 	def unlock(self, key: bytearray) -> rm.ResourceMask:
@@ -119,7 +121,7 @@ class Connection:
 		# Add leading zeros to address
 		addressBytes = byteops.extendBytearray(addressBytes, 4, left=True)
 		payload = bytearray([mtaNumber, extension]) + addressBytes
-		self.sendCRO(0x02, payload)
+		self.sendCRO(0x02, payload=payload)
 		self.mta = address
 		self.mtaExtension = extension
 		self.mtaNumber = mtaNumber
@@ -131,7 +133,7 @@ class Connection:
 		if blockSize > 5:
 			raise ValueError("Block size must be 5 bytes or less")
 		payload = bytearray([blockSize])
-		response = self.sendCRO(0x04, payload)
+		response = self.sendCRO(0x04, payload=payload)
 		self.mta += blockSize
 		return response[3:3+blockSize]
 	
@@ -148,7 +150,7 @@ class Connection:
 		if self.debug == True:
 			print("GET_CCP_VERSION")
 		payload = bytearray([mainVersion, release])
-		response = self.sendCRO(0x1B, payload)
+		response = self.sendCRO(0x1B, payload=payload)
 		returnedMainVersion = int(response[3])
 		returnedRelease = int(response[4])
 		return returnedMainVersion, returnedRelease
@@ -160,7 +162,7 @@ class Connection:
 		if dataLength > 5:
 			raise ValueError("Data must be 5 bytes or less")
 		payload = bytearray([dataLength]) + data
-		response = self.sendCRO(0x03, payload)
+		response = self.sendCRO(0x03, payload=payload)
 		self.mtaExtension = int(response[3])
 		self.mta = listops.listToInt(list(response[4:8]))
 		return True
@@ -171,7 +173,7 @@ class Connection:
 		dataLength = len(data)
 		if dataLength != 6:
 			raise ValueError("Data must be 6 bytes long")
-		response = self.sendCRO(0x23, data)
+		response = self.sendCRO(0x23, payload=data)
 		self.mtaExtension = int(response[3])
 		self.mta = listops.listToInt(list(response[4:8]))
 		return True
@@ -180,17 +182,17 @@ class Connection:
 		if self.debug == True:
 			print("SET_S_STATUS")
 		sessionInt = status.getInteger()
-		self.sendCRO(0x0C, bytearray([sessionInt]))
+		self.sendCRO(0x0C, payload=bytearray([sessionInt]))
 		return True
 
 	def getSessionStatus(self) -> sStatus.sessionStatus:
 		if self.debug == True:
 			print("GET_S_STATUS")
-		response = self.sendCRO(0x0D, bytearray())
+		response = self.sendCRO(0x0D)
 		return sStatus.statusFromInt(response[3])
 
 	def selectCalibrationPage(self) -> bool:
 		if self.debug == True:
 			print("SELECT_CAL_PAGE")
-		self.sendCRO(0x11, bytearray())
+		self.sendCRO(0x11)
 		return True
