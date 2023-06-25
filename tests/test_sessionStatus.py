@@ -23,3 +23,6 @@ def test_getInteger_store():
 def test_getInteger_run():
 	ss = sessionStatus.sessionStatus(False, False, False, False, True)
 	assert ss.getInteger() == 0b10000000
+
+def test_statusFromInt():
+	assert sessionStatus.statusFromInt(0b11000111).getInteger() == 0b11000111
