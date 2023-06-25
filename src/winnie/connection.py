@@ -64,7 +64,6 @@ class Connection:
 	def connect(self, stationID: int) -> bool:
 		if self.debug == True:
 			print("CONNECT")
-
 		commandCode = 0x01
 		idBytes = byteops.intToByteArray(stationID)
 		self.sendCRO(commandCode, idBytes)
@@ -87,7 +86,6 @@ class Connection:
 	def exchangeID(self) -> Tuple[rm.ResourceMask, rm.ResourceMask]:
 		if self.debug == True:
 			print("EXCHANGE_ID")
-
 		commandCode = 0x17
 		response = self.sendCRO(commandCode, bytearray())
 		# Initialise two resource mask objects
@@ -101,7 +99,6 @@ class Connection:
 	def getSeed(self, resourceMask: rm.ResourceMask) -> List[int]:
 		if self.debug == True:
 			print("GET_SEED")
-
 		commandCode = 0x12
 		payload = bytearray([resourceMask.getInteger()])
 		response = self.sendCRO(commandCode, payload)
@@ -120,7 +117,6 @@ class Connection:
 	def setMemoryTransferAddress(self, mtaNumber: int, extension: int, address: int) -> bool:
 		if self.debug == True:
 			print("SET_MTA")
-
 		if mtaNumber != 0 and mtaNumber != 1:
 			raise ValueError("Memory transfer address number must be 0 or 1")
 		# Construct the message
@@ -141,7 +137,6 @@ class Connection:
 	def upload(self, blockSize: int) -> bytearray:
 		if self.debug == True:
 			print("UPLOAD")
-
 		if blockSize > 5:
 			raise ValueError("Block size must be 5 bytes or less")
 		message = bytearray([0x04, self.counter, blockSize, 0, 0, 0, 0, 0])
@@ -161,7 +156,6 @@ class Connection:
 	def getCCPVersion(self, mainVersion: int, release: int) -> Tuple[int, int]:
 		if self.debug == True:
 			print("GET_CCP_VERSION")
-
 		commandCode = 0x1B
 		payload = bytearray([mainVersion, release])
 		response = self.sendCRO(commandCode, payload)
@@ -172,7 +166,6 @@ class Connection:
 	def download(self, data: bytearray) -> bool:
 		if self.debug == True:
 			print("DOWNLOAD")
-
 		dataLength = len(data)
 		if dataLength > 5:
 			raise ValueError("Data must be 5 bytes or less")
@@ -198,7 +191,6 @@ class Connection:
 	def setSessionStatus(self, status: sStatus.sessionStatus) -> bool:
 		if self.debug == True:
 			print("SET_S_STATUS")
-		
 		sessionInt = status.getInteger()
 		commandCode = 0x0C
 		self.sendCRO(commandCode, bytearray([sessionInt]))
