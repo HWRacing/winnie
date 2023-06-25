@@ -162,8 +162,9 @@ class Connection:
 		if self.debug == True:
 			print("GET_CCP_VERSION")
 
-		message = bytearray([0x1B, self.counter, mainVersion, release, 0, 0, 0, 0])
-		response, msgCounter = self.sendMessage(message)
+		commandCode = 0x1B
+		payload = bytearray([mainVersion, release])
+		response = self.sendCRO(commandCode, payload)
 		returnedMainVersion = int(response[3])
 		returnedRelease = int(response[4])
 		return returnedMainVersion, returnedRelease
