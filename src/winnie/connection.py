@@ -4,7 +4,8 @@ from winnie import listops
 from winnie import resourceMask as rm
 from winnie import formatting
 from winnie import verification
- 
+from winnie import sessionStatus as sStatus
+
 class Connection:
 	def __init__(self, channel: canlib.Channel, id: int, debug: bool = False):
 		self.connected = False
@@ -12,6 +13,9 @@ class Connection:
 		self.counter = 0
 		self.id = id
 		self.debug = debug
+		self.mta = None
+		self.mtaExtension = None
+		self.mtaNumber = None
 	
 	def incrementCounter(self):
 		self.counter += 1
@@ -49,11 +53,8 @@ class Connection:
 		splitID = listops.splitNumberByBytes(stationID, bigEndian=False)
 		message = bytearray([0x01, self.counter, splitID[0], splitID[1], 0, 0, 0, 0])
 		response, msgCounter = self.sendMessage(message)
-		if self.checkForAcknowledgement(response) == True:
-			self.connected = True
-			return True
-		else:
-			raise RuntimeError("Connection failed")
+		self.connected = True
+		return True
 	
 	def disconnect(self, stationID: int, temporary=False) -> bool:
 		if self.debug == True:
@@ -65,11 +66,8 @@ class Connection:
 			temporaryByte = 0x00
 		message = bytearray([0x07, self.counter, temporaryByte, 0, splitID[0], splitID[1], 0, 0])
 		response, msgCounter = self.sendMessage(message)
-		if self.checkForAcknowledgement(response) == True:
-			self.connected = False
-			return True
-		else:
-			raise RuntimeError("Disconnect failed")
+		self.connected = False
+		return True
 	
 	def exchangeID(self) -> Tuple[rm.ResourceMask, rm.ResourceMask]:
 		if self.debug == True:
@@ -101,9 +99,7 @@ class Connection:
 		message = bytearray([0x13, self.counter])
 		message.extend(key)
 		response, msgCounter = self.sendMessage(message)
-		result = rm.ResourceMask(False, False, False)
-		result.setFromInteger(response[3])
-		return result
+		return rm.maskFromInt(response[3])
 
 	def setMemoryTransferAddress(self, mtaNumber: int, extension: int, address: int) -> bool:
 		if self.debug == True:
@@ -121,6 +117,9 @@ class Connection:
 		# Send message and handle response
 		message = bytearray(message)
 		response, msgCounter = self.sendMessage(message)
+		self.mta = address
+		self.mtaExtension = extension
+		self.mtaNumber = mtaNumber
 		return True
 
 	def upload(self, blockSize: int) -> bytearray:
@@ -131,7 +130,17 @@ class Connection:
 			raise ValueError("Block size must be 5 bytes or less")
 		message = bytearray([0x04, self.counter, blockSize, 0, 0, 0, 0, 0])
 		response, msgCounter = self.sendMessage(message)
+		self.mta += blockSize
 		return response[3:3+blockSize]
+	
+	# def shortUpload(self, blockSize: int, extension: int, address: int) -> bytearray:
+	# 	if self.debug == True:
+	# 		print("SHORT_UP")
+	# 	if blockSize > 5:
+	# 		raise ValueError("Block size must be 5 bytes or less")
+	# 	message = bytearray([0x0F, self.counter, blockSize, extension, address, 0, 0, 0])
+	# 	response, msgCounter = self.sendMessage(message)
+	# 	return response[3:3+blockSize]
 	
 	def getCCPVersion(self, mainVersion: int, release: int) -> Tuple[int, int]:
 		if self.debug == True:
@@ -143,7 +152,7 @@ class Connection:
 		returnedRelease = int(response[4])
 		return returnedMainVersion, returnedRelease
 
-	def download(self, data: bytearray) -> Tuple[int, int]:
+	def download(self, data: bytearray) -> bool:
 		if self.debug == True:
 			print("DOWNLOAD")
 
@@ -154,6 +163,42 @@ class Connection:
 		message.extend(data)
 		message = listops.padToLength(message, 8, padding=0)
 		response, msgCounter = self.sendMessage(message)
-		newExtension = int(response[3])
-		newAddress = listops.listToInt(list(response[4:8]))
-		return newExtension, newAddress
+		self.mtaExtension = int(response[3])
+		self.mta = listops.listToInt(list(response[4:8]))
+		return True
+	
+	def downloadSix(self, data: bytearray) -> bool:
+		if self.debug == True:
+			print("DNLOAD_6")
+		dataLength = len(data)
+		if dataLength != 6:
+			raise ValueError("Data must be 6 bytes long")
+		message = bytearray([0x23, self.counter, data[0], data[1], data[2], data[3], data[4], data[5]])
+		response, msgCounter = self.sendMessage(message)
+		self.mtaExtension = int(response[3])
+		self.mta = listops.listToInt(list(response[4:8]))
+		return True
+
+	def setSessionStatus(self, status: sStatus.sessionStatus) -> bool:
+		if self.debug == True:
+			print("SET_S_STATUS")
+		
+		sessionInt = status.getInteger()
+		
+		message = bytearray([0x0C, self.counter, sessionInt, 0, 0, 0, 0, 0])
+		response, msgCounter = self.sendMessage(message)
+		return True
+
+	def getSessionStatus(self) -> sStatus.sessionStatus:
+		if self.debug == True:
+			print("GET_S_STATUS")
+		message = bytearray([0x0D, self.counter, 0, 0, 0, 0, 0, 0])
+		response, msgCounter = self.sendMessage(message)
+		return sStatus.statusFromInt(response[3])
+
+	def selectCalibrationPage(self) -> bool:
+		if self.debug == True:
+			print("SELECT_CAL_PAGE")
+		message = bytearray([0x11, self.counter, 0, 0, 0, 0, 0, 0])
+		response, msgCounter = self.sendMessage(message)
+		return True
