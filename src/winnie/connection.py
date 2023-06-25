@@ -200,9 +200,8 @@ class Connection:
 			print("SET_S_STATUS")
 		
 		sessionInt = status.getInteger()
-		
-		message = bytearray([0x0C, self.counter, sessionInt, 0, 0, 0, 0, 0])
-		response, msgCounter = self.sendMessage(message)
+		commandCode = 0x0C
+		self.sendCRO(commandCode, bytearray([sessionInt]))
 		return True
 
 	def getSessionStatus(self) -> sStatus.sessionStatus:
