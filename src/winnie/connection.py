@@ -119,16 +119,12 @@ class Connection:
 			print("SET_MTA")
 		if mtaNumber != 0 and mtaNumber != 1:
 			raise ValueError("Memory transfer address number must be 0 or 1")
-		# Construct the message
-		message = [0x02, self.counter, mtaNumber, extension]
-		message.extend(listops.splitNumberByBytes(address, bigEndian=True))
-		# Add leading 0s to address if necessary (this is why we need to switch to byte arrays)
-		if len(message) < 8:
-			zerosToAdd = 8 - len(message)
-			message = message[:4] + [0] * zerosToAdd + message[4:]
-		# Send message and handle response
-		message = bytearray(message)
-		response, msgCounter = self.sendMessage(message)
+		addressBytes = byteops.intToByteArray(address, bigEndian=True)
+		# Add leading zeros to address
+		addressBytes = byteops.extendBytearray(addressBytes, 4, left=True)
+		commandCode = 0x02
+		payload = bytearray([mtaNumber, extension]) + addressBytes
+		self.sendCRO(commandCode, payload)
 		self.mta = address
 		self.mtaExtension = extension
 		self.mtaNumber = mtaNumber
