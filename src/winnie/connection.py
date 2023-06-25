@@ -88,8 +88,8 @@ class Connection:
 		if self.debug == True:
 			print("EXCHANGE_ID")
 
-		message = bytearray([0x17, self.counter, 0, 0, 0, 0, 0, 0])
-		response, msgCounter = self.sendMessage(message)
+		commandCode = 0x17
+		response = self.sendCRO(commandCode, bytearray())
 		# Initialise two resource mask objects
 		availabilityMask = rm.ResourceMask(False, False, False)
 		protectionMask = rm.ResourceMask(False, False, False)
