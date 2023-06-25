@@ -28,6 +28,15 @@ class Connection:
 		result = self.channel.read(timeout=500)
 		return result.data
 
+	def constructCRO(self, commandCode: int, payload: bytearray) -> bytearray:
+		if len(payload) > 6:
+			raise ValueError(f"Payload must be 6 bytes or less, was actually {len(payload)}")
+		cro = bytearray([commandCode])
+		cro.extend(payload)
+		if len(cro) < 8:
+			cro.extend([0x00] * (8 - len(cro)))
+		return cro
+
 	def sendMessage(self, message: bytearray) -> bytearray:
 		if self.debug == True:
 			formatting.printByteArrayWithLabel("Message: ", message)
