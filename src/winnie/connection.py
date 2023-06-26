@@ -62,7 +62,7 @@ class Connection:
 
 		return result, currentCounter
 	
-	def sendCRO(self, commandCode: int, payload: bytearray) -> bytearray:
+	def sendCRO(self, commandCode: int, payload: bytearray=None) -> bytearray:
 		message = self.constructCRO(commandCode, payload)
 		result, _ = self.sendMessage(message)
 		return result
