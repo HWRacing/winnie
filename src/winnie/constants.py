@@ -28,3 +28,23 @@ commandCodes = {
     0x20: "DIAG_SERVICE",
     0x21: "ACTION_SERVICE"
 }
+
+commandReturnCodes = {
+    0x00: "acknowledge",
+    0x01: "DAQ processor overload",
+    0x10: "command processor busy",
+    0x12: "internal timeout",
+    0x18: "key request",
+    0x19: "session status request",
+    0x20: "cold start request",
+    0x21: "calibration data init request",
+    0x22: "DAQ list init request",
+    0x23: "code update request",
+    0x30: "unknown command",
+    0x31: "command syntax",
+    0x32: "parameter(s) out of range",
+    0x33: "access denied",
+    0x34: "overload",
+    0x35: "access locked",
+    0x36: "resource/function not available"
+}
