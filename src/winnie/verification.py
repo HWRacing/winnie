@@ -34,10 +34,11 @@ def verifyResponse(response: bytearray, sentCounter: int) -> bool:
 	# Command return message
 	if packetID == 0xFF:
 		verifyReceivedCounter(response, sentCounter)
-		checkForAcknowledgement(response)
+		checkResponseCode(response[1])
 	# Event message
 	elif packetID == 0xFE:
 		checkForAcknowledgement(response)
+		checkResponseCode(response[1])
 	# Data Acquisition Message
 	else:		
 		pass
