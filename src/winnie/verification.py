@@ -22,15 +22,23 @@ def checkForAcknowledgement(message: bytearray) -> bool:
 			return False
 	raise ValueError("Cannot check for acknowledgement of data acquisition message")
 
+def checkResponseCode(code: int) -> bool:
+	if code == 0x00:
+		return True
+	if not code in constants.commandReturnCodes:
+		raise ValueError(f"Invalid command response code {code:#x}")
+	raise RuntimeError(f"Error: {code:#x} - {constants.commandReturnCodes[code]}")
+
 def verifyResponse(response: bytearray, sentCounter: int) -> bool:
 	packetID = response[0]
 	# Command return message
 	if packetID == 0xFF:
 		verifyReceivedCounter(response, sentCounter)
-		checkForAcknowledgement(response)
+		checkResponseCode(response[1])
 	# Event message
 	elif packetID == 0xFE:
 		checkForAcknowledgement(response)
+		checkResponseCode(response[1])
 	# Data Acquisition Message
 	else:		
 		pass
