@@ -8,9 +8,9 @@ from winnie import sessionStatus as sStatus
 from winnie import byteops
 
 class Connection:
-	def __init__(self, channel: canlib.Channel, id: int, debug: bool = False):
+	def __init__(self, bitRate, channelNo, id: int, debug: bool = False):
 		self.connected = False
-		self.channel = channel
+		self.channel = self.createChannel(bitRate, channelNo)
 		self.counter = 0
 		self.id = id
 		self.debug = debug
@@ -18,6 +18,15 @@ class Connection:
 		self.mtaExtension = None
 		self.mtaNumber = None
 	
+	def createChannel(self, bitRate, channelNo):
+		try:
+			ch = canlib.openChannel(channel=channelNo)
+			ch.setBusParams(bitRate)
+			ch.busOn()
+			return ch
+		except canlib.exceptions.CanError as e:
+			raise RuntimeError("Error Connecting to CAN channel")
+
 	def debugPrint(self, s: str):
 		if self.debug:
 			print(s)
