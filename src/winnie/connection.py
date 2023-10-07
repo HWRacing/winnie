@@ -8,7 +8,7 @@ from winnie import sessionStatus as sStatus
 from winnie import byteops
 
 class Connection:
-	def __init__(self, bitRate, channelNo, id: int, debug: bool = False):
+	def __init__(self, bitRate: canlib.Bitrate, channelNo: int, id: int, debug: bool = False):
 		self.connected = False
 		self.channel = self.createChannel(bitRate, channelNo)
 		self.counter = 0
@@ -18,7 +18,7 @@ class Connection:
 		self.mtaExtension = None
 		self.mtaNumber = None
 	
-	def createChannel(self, bitRate, channelNo):
+	def createChannel(self, bitRate: canlib.Bitrate, channelNo: int) -> canlib.Channel: 
 		try:
 			ch = canlib.openChannel(channel=channelNo)
 			ch.setBusParams(bitRate)
